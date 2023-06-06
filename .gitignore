@@ -3,3 +3,4 @@ SchoolInterface/config.py
 __pycache__/
 .idea/
 env/
+docs/_build/
