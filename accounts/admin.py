@@ -9,8 +9,11 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ["first_name","last_name","email"]
     # exclude = ["password","last_login"]
     
+class LocationAdmin(admin.ModelAdmin):
+    pass
+    
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ["user", "dob", "gender","phone","state","district","city","pincode"]
+    list_display = ["user", "dob", "gender","phone"]
     search_fields = ["user__first_name","user__last_name","user__email"]
     
 class OrganisationAdmin(admin.ModelAdmin):
@@ -66,6 +69,7 @@ admin.site.register(SchoolCoordinator,SchoolCoordinatorAdmin)
 admin.site.register(Teacher,TeacherAdmin)
 admin.site.register(Parent,ParentAdmin)
 admin.site.register(Profile,ProfileAdmin)
+admin.site.register(Location,LocationAdmin)
 
 
 
