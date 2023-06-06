@@ -1,11 +1,13 @@
 from django.core.exceptions import ValidationError
-from django.contrib.auth.password_validation import UserAttributeSimilarityValidator, CommonPasswordValidator
-from difflib import SequenceMatcher
+from django.contrib.auth.password_validation \
+        import UserAttributeSimilarityValidator, CommonPasswordValidator
 import string
 
-def validate_user_password_constraints(password,user=None,dob=None):
+
+def validate_user_password_constraints(password, user=None, dob=None):
     """
-    Validate that the password meets the min & max length criteria. It has atleast 1 uppercase, lowercase, digit & punctuation character.
+    Validate that the password meets the min & max length criteria. It has
+    atleast 1 uppercase, lowercase, digit & punctuation character.
     Password should not be too similar to date of birth.
 
     If the password is valid, return ``None``.
@@ -33,18 +35,9 @@ def validate_user_password_constraints(password,user=None,dob=None):
             error_msg += "Password is too similar to the date of birth."
     if error_msg:
         raise ValidationError(f"{error_msg}")
-    
-    
-class CustomPasswordValidator(UserAttributeSimilarityValidator):
-    def validate(self, password, user=None,dob=None):
-        super().validate(password, user)
-        validate_user_password_constraints(password,user,dob)
-    
-   
-            
-        
-        
-        
-        
 
-            
+
+class CustomPasswordValidator(UserAttributeSimilarityValidator):
+    def validate(self, password, user=None, dob=None):
+        super().validate(password, user)
+        validate_user_password_constraints(password, user, dob)
