@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
+from django.utils.translation import gettext_lazy as _
 
 from common.models import State, District, City, Language
 
@@ -9,23 +10,36 @@ CLASS_CHOICES = [ (i,f"Class {i}") for i in range(1,MAX_CLASS+1)]
 
 class User(AbstractUser):
     email = models.EmailField(unique=True,blank=True,null=True)
+    first_name = models.CharField(_("first name"), max_length=150, blank=False, null=False)
+    last_name = models.CharField(_("last name"), max_length=150, blank=False, null=False)
+
+class Location(models.Model):
+    """
+        Complete address for users
+    """
+    address = models.TextField()
+    state = models.ForeignKey(State,on_delete=models.PROTECT)
+    district = models.ForeignKey(District,on_delete=models.PROTECT)
+    city = models.ForeignKey(City,on_delete=models.PROTECT)
+    pincode = models.CharField(max_length=6)
+    updated = models.DateField(auto_now=True)
+    
+    def __str__(self) -> str:
+        return f"{self.address}, {self.district}, {self.city}, {self.state} - {self.pincode}"
     
 class Profile(models.Model):
     """
         Profile information for users
     """
-    phone_regex = RegexValidator(regex=r'^\+?[0-9]+-?[0-9]+$',message='Enter a valid phone/mobile number')
+    phone_regex = RegexValidator(regex=r'^\+?[0-9]+-?[0-9]{6,}$',message='Enter a valid phone/mobile number')
     pincode_regex = RegexValidator(regex=r'^\d{6}$',message='Enter a valid pincode')
     GENDER_CHOICES = [('M', 'Male'), ('F', 'Female'),('O', 'Other'),('NA','Not applicable')] # 'NA' in case of organisation & school
-    
-    user = models.ForeignKey(User,on_delete=models.PROTECT)
+
+    user = models.ForeignKey(User,on_delete=models.PROTECT,related_name='profile')
     dob = models.DateField(help_text='YYYY-MM-DD')
     gender = models.CharField(max_length=2,choices=GENDER_CHOICES)
     phone = models.CharField(max_length=20,validators=[phone_regex])
-    state = models.ForeignKey(State,on_delete=models.PROTECT)
-    district = models.ForeignKey(District,on_delete=models.PROTECT)
-    city = models.ForeignKey(City,on_delete=models.PROTECT)
-    pincode = models.CharField(max_length=6)
+    location = models.ForeignKey(Location, on_delete=models.PROTECT)    
     updated = models.DateField(auto_now=True)
     
 class Organisation(models.Model):
@@ -106,7 +120,7 @@ class Payment(models.Model):
 
 class TrainingTeam(models.Model):
     user = models.ForeignKey(User,on_delete=models.PROTECT)
-    
+    profile = models.ForeignKey(Profile,on_delete=models.PROTECT)
     class Meta:
         ordering = ['user__first_name','user__last_name']
         verbose_name = 'Training Team'
