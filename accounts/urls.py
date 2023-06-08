@@ -3,7 +3,7 @@ from accounts.api.user_api import TrainingTeamViewSet
 from accounts.api.institution_api import OrganisationViewset,SchoolViewset
 from accounts.api.user_api import CentralCoordinatorViewset, SchoolCoordinatorViewset, TeacherViewset, ParentViewset
 from rest_framework import routers
-app_name="accounts"
+app_name = "accounts"
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'register/training-team', TrainingTeamViewSet,basename='training-team-register')

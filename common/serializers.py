@@ -3,15 +3,18 @@ from .models import State, District, City
 from accounts.models import Location
 
 
+
 class StateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = State  
+        model = State
         fields = ['name']
-        
+
+
 class DistrictSerializer(serializers.ModelSerializer):
     class Meta:
-        model = District  
+        model = District
         fields = ['name']
+
 
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
