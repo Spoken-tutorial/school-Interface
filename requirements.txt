@@ -4,6 +4,7 @@ Babel==2.12.1
 certifi==2023.5.7
 charset-normalizer==3.1.0
 Django==4.2.1
+djangorestframework==3.14.0
 docutils==0.20.1
 flake8==6.0.0
 idna==3.4
@@ -17,6 +18,7 @@ pycodestyle==2.10.0
 pyflakes==3.0.1
 Pygments==2.15.1
 python-dotenv==1.0.0
+pytz==2023.3
 requests==2.31.0
 snowballstemmer==2.2.0
 Sphinx==7.0.1
