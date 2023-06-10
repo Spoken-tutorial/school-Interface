@@ -62,15 +62,15 @@ class Organisation(models.Model):
         ('NGO', 'NGO'),
         ('Foreign', 'Foreign'),
     ]
-    
-    added_by = models.ForeignKey(User,on_delete=models.PROTECT)
-    name_of_association = models.CharField(max_length=200,unique=True)
+
+    added_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    name_of_association = models.CharField(max_length=200, unique=True)
     date_of_association = models.DateField()
     type = models.CharField(max_length=100, choices=ASSOCIATION_CHOICES)
     updated = models.DateField(auto_now=True)
     is_active = models.BooleanField(default=True)
     location = models.ForeignKey(Location, on_delete=models.PROTECT)
-    
+
     class Meta:
         ordering = ['name_of_association', '-date_of_association']
 
@@ -88,9 +88,9 @@ class School(models.Model):
         ('Foreign Funded', 'Foreign Funded'),
         ('Self-Funded', 'Self-Funded'),
     ]
-    
-    added_by = models.ForeignKey(User,on_delete=models.PROTECT)
-    name_of_association = models.CharField(max_length=200,unique=True)
+
+    added_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    name_of_association = models.CharField(max_length=200, unique=True)
     date_of_association = models.DateField()
     type = models.CharField(max_length=100, choices=TYPE_CHOICES)
     organisation = models.ForeignKey(Organisation, on_delete=models.PROTECT,
@@ -98,7 +98,7 @@ class School(models.Model):
     updated = models.DateField(auto_now=True)
     is_active = models.BooleanField(default=True)
     location = models.ForeignKey(Location, on_delete=models.PROTECT)
-    
+
     class Meta:
         ordering = ['name_of_association', '-date_of_association']
 
@@ -139,10 +139,10 @@ class TrainingTeam(models.Model):
 
 
 class CentralCoordinator(models.Model):
-    user = models.ForeignKey(User,on_delete=models.PROTECT)
-    profile = models.ForeignKey(Profile,on_delete=models.PROTECT)
-    organisation = models.ForeignKey(Organisation,on_delete=models.PROTECT)
-    
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+    organisation = models.ForeignKey(Organisation, on_delete=models.PROTECT)
+
     class Meta:
         ordering = ['user__first_name', 'user__last_name']
         verbose_name = 'Central Coordinator'
@@ -153,10 +153,10 @@ class CentralCoordinator(models.Model):
 
 
 class SchoolCoordinator(models.Model):
-    user = models.ForeignKey(User,on_delete=models.PROTECT)
-    profile = models.ForeignKey(Profile,on_delete=models.PROTECT)
-    school = models.ForeignKey(School,on_delete=models.PROTECT)
-    
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+    school = models.ForeignKey(School, on_delete=models.PROTECT)
+
     class Meta:
         ordering = ['user__first_name', 'user__last_name']
         verbose_name = 'School Coordinator'
@@ -167,9 +167,9 @@ class SchoolCoordinator(models.Model):
 
 
 class Teacher(models.Model):
-    user = models.ForeignKey(User,on_delete=models.PROTECT)
-    profile = models.ForeignKey(Profile,on_delete=models.PROTECT)
-    school = models.ForeignKey(School,on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+    school = models.ForeignKey(School, on_delete=models.PROTECT)
     unique_id = models.CharField(max_length=50)
     # classVal = models.ManyToManyField
 
@@ -191,11 +191,11 @@ class Parent(models.Model):
 
 
 class Student(models.Model):
-    user = models.ForeignKey(User,on_delete=models.PROTECT)
-    profile = models.ForeignKey(Profile,on_delete=models.PROTECT)
-    school = models.ForeignKey(School,on_delete=models.PROTECT)
-    unique_id = models.CharField(max_length=50) #Enrolment ID / Any other unique ID
-    preferred_lang = models.ForeignKey(Language,on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+    school = models.ForeignKey(School, on_delete=models.PROTECT)
+    unique_id = models.CharField(max_length=50)  # Enrolment ID / Any other unique ID
+    preferred_lang = models.ForeignKey(Language, on_delete=models.PROTECT)
     current_class = models.IntegerField(choices=CLASS_CHOICES)
     division = models.CharField(max_length=50)
     teacher = models.ForeignKey(Teacher, on_delete=models.PROTECT)

@@ -22,21 +22,23 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 class OrganisationAdmin(admin.ModelAdmin):
-    list_display = ["name_of_association","type","location" ,"date_of_association", "type","updated","is_active"]
+    list_display = ["name_of_association", "type", "location", "date_of_association",
+                    "type", "updated", "is_active"]
     list_filter = ['type']
     list_editable = ['is_active']
     search_fields = ["name_of_association"]
 
 
 class SchoolAdmin(admin.ModelAdmin):
-    list_display = ["name_of_association","type","organisation","location" ,"date_of_association", "type","updated","is_active"]
+    list_display = ["name_of_association", "type", "organisation", "location",
+                    "date_of_association", "type", "updated", "is_active"]
     list_filter = ["type"]
     list_editable = ['is_active']
     search_fields = ["name_of_association", "organisation__name_of_association"]
 
 
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ["school","organisation","date_of_payment" ,"amount", "utr","receipt"]
+    list_display = ["school", "organisation", "date_of_payment", "amount", "utr", "receipt"]
     list_filter = ["school__location__state"]
     # list_editable = ['is_active']
     search_fields = ["school__name_of_association",
@@ -49,19 +51,25 @@ class TrainingTeamAdmin(admin.ModelAdmin):
 
 
 class CentralCoordinatorAdmin(admin.ModelAdmin):
-    list_display = ["user","organisation"]
+    list_display = ["user", "organisation"]
     list_filter = ["organisation__location__state"]
-    search_fields = ["user__first_name","user__last_name","user__email","organisation__name_of_association"]
-    
+    search_fields = ["user__first_name", "user__last_name", "user__email",
+                     "organisation__name_of_association"]
+
+
 class SchoolCoordinatorAdmin(admin.ModelAdmin):
-    list_display = ["user","school"]
+    list_display = ["user", "school"]
     list_filter = ["school__location__state"]
-    search_fields = ["user__first_name","user__last_name","user__email","school__name_of_association"]
+    search_fields = ["user__first_name", "user__last_name", "user__email",
+                     "school__name_of_association"]
+
 
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ["user","school","unique_id"]
+    list_display = ["user", "school", "unique_id"]
     list_filter = ["school__location__state"]
-    search_fields = ["user__first_name","user__last_name","user__email","school__name_of_association","unique_id"]
+    search_fields = ["user__first_name", "user__last_name", "user__email",
+                     "school__name_of_association", "unique_id"]
+
 
 class ParentAdmin(admin.ModelAdmin):
     list_display = ["user"]
