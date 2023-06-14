@@ -6,7 +6,7 @@ from .models import User, Organisation, School, Payment, TrainingTeam, \
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ["first_name", "last_name", "email", "is_active",
-                    "date_joined"]
+                    "date_joined", "phone"]
     list_editable = ['is_active']
     search_fields = ["first_name", "last_name", "email"]
     # exclude = ["password","last_login"]
@@ -17,7 +17,7 @@ class LocationAdmin(admin.ModelAdmin):
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ["user", "dob", "gender", "phone"]
+    list_display = ["user", "dob", "gender"]
     search_fields = ["user__first_name", "user__last_name", "user__email"]
 
 
@@ -46,35 +46,35 @@ class PaymentAdmin(admin.ModelAdmin):
 
 
 class TrainingTeamAdmin(admin.ModelAdmin):
-    list_display = ["user"]
-    search_fields = ["user__first_name", "user__last_name", "user__email"]
+    list_display = ["username"]
+    search_fields = ["first_name", "last_name", "email"]
 
 
 class CentralCoordinatorAdmin(admin.ModelAdmin):
-    list_display = ["user", "organisation"]
+    list_display = ["username", "email", "organisation"]
     list_filter = ["organisation__location__state"]
-    search_fields = ["user__first_name", "user__last_name", "user__email",
+    search_fields = ["first_name", "last_name", "email",
                      "organisation__name_of_association"]
 
 
 class SchoolCoordinatorAdmin(admin.ModelAdmin):
-    list_display = ["user", "school"]
+    list_display = ["email", "school"]
     list_filter = ["school__location__state"]
-    search_fields = ["user__first_name", "user__last_name", "user__email",
+    search_fields = ["first_name", "last_name", "email",
                      "school__name_of_association"]
 
 
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ["user", "school", "unique_id"]
+    list_display = ["email", "school", "unique_id"]
     list_filter = ["school__location__state"]
-    search_fields = ["user__first_name", "user__last_name", "user__email",
+    search_fields = ["first_name", "last_name", "email",
                      "school__name_of_association", "unique_id"]
 
 
 class ParentAdmin(admin.ModelAdmin):
-    list_display = ["user"]
-    search_fields = ["user__first_name", "user__last_name", "user__email"]
-    search_fields = ["user__first_name", "user__last_name", "user__email"]
+    list_display = ["first_name", "last_name", "email"]
+    search_fields = ["first_name", "last_name", "email"]
+    search_fields = ["first_name", "last_name", "email"]
 
 
 admin.site.register(User, UserAdmin)

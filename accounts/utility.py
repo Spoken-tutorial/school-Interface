@@ -4,7 +4,7 @@ from django.contrib.auth.password_validation \
 import string
 
 
-def validate_user_password_constraints(password, user=None, dob=None):
+def validate_user_password_constraints(password, dob=None):
     """
     Validate that the password meets the min & max length criteria. It has
     atleast 1 uppercase, lowercase, digit & punctuation character.
@@ -40,4 +40,4 @@ def validate_user_password_constraints(password, user=None, dob=None):
 class CustomPasswordValidator(UserAttributeSimilarityValidator):
     def validate(self, password, user=None, dob=None):
         super().validate(password, user)
-        validate_user_password_constraints(password, user, dob)
+        validate_user_password_constraints(password, dob)
