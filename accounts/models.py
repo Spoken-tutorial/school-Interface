@@ -10,11 +10,15 @@ CLASS_CHOICES = [(i, f"Class {i}") for i in range(1, MAX_CLASS+1)]
 
 
 class User(AbstractUser):
+    phone_regex = RegexValidator(regex=r'^\+?[0-9]+-?[0-9]{6,}$',
+                                 message='Enter a valid phone/mobile number')
+
     email = models.EmailField(unique=True, blank=True, null=True)
     first_name = models.CharField(_("first name"), max_length=150, blank=False,
                                   null=False)
     last_name = models.CharField(_("last name"), max_length=150, blank=False,
                                  null=False)
+    phone = models.CharField(max_length=20, validators=[phone_regex])
 
 
 class Location(models.Model):
@@ -37,18 +41,15 @@ class Profile(models.Model):
     """
         Profile information for users
     """
-    phone_regex = RegexValidator(regex=r'^\+?[0-9]+-?[0-9]{6,}$',
-                                 message='Enter a valid phone/mobile number')
     pincode_regex = RegexValidator(regex=r'^\d{6}$',
                                    message='Enter a valid pincode')
     GENDER_CHOICES = [('M', 'Male'), ('F', 'Female'), ('O', 'Other'),
                       ('NA', 'Not applicable')]  # 'NA' in case of organisation & school
 
     user = models.ForeignKey(User, on_delete=models.PROTECT,
-                             related_name='profile')
+                             related_name='profile_info')
     dob = models.DateField(help_text='YYYY-MM-DD')
     gender = models.CharField(max_length=2, choices=GENDER_CHOICES)
-    phone = models.CharField(max_length=20, validators=[phone_regex])
     location = models.ForeignKey(Location, on_delete=models.PROTECT)
     updated = models.DateField(auto_now=True)
 
@@ -63,7 +64,8 @@ class Organisation(models.Model):
         ('Foreign', 'Foreign'),
     ]
 
-    added_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    added_by = models.ForeignKey(User, on_delete=models.PROTECT,
+                                 related_name='associated_organisation')
     name_of_association = models.CharField(max_length=200, unique=True)
     date_of_association = models.DateField()
     type = models.CharField(max_length=100, choices=ASSOCIATION_CHOICES)
@@ -89,7 +91,8 @@ class School(models.Model):
         ('Self-Funded', 'Self-Funded'),
     ]
 
-    added_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    added_by = models.ForeignKey(User, on_delete=models.PROTECT,
+                                 related_name='school_added')
     name_of_association = models.CharField(max_length=200, unique=True)
     date_of_association = models.DateField()
     type = models.CharField(max_length=100, choices=TYPE_CHOICES)
@@ -125,87 +128,91 @@ class Payment(models.Model):
         return f"{self.school.name_of_association} - {self.date_of_payment}"
 
 
-class TrainingTeam(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+class TrainingTeam(User):
+    user_ptr = models.OneToOneField(User, parent_link=True, to_field='id',
+                                    on_delete=models.PROTECT, primary_key=False)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=False)
 
     class Meta:
-        ordering = ['user__first_name', 'user__last_name']
+        ordering = ['first_name', 'last_name']
         verbose_name = 'Training Team'
         verbose_name_plural = 'Training Team'
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.username}"
 
 
-class CentralCoordinator(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+class CentralCoordinator(User):
+    user_ptr = models.OneToOneField(User, parent_link=True,
+                                    to_field='id', on_delete=models.PROTECT,
+                                    primary_key=False)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=False)
     organisation = models.ForeignKey(Organisation, on_delete=models.PROTECT)
 
     class Meta:
-        ordering = ['user__first_name', 'user__last_name']
+        ordering = ['first_name', 'last_name']
         verbose_name = 'Central Coordinator'
         verbose_name_plural = 'Central Coordinators'
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.username}"
 
 
-class SchoolCoordinator(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+class SchoolCoordinator(User):
+    user_ptr = models.OneToOneField(User, parent_link=True, to_field='id',
+                                    on_delete=models.PROTECT, primary_key=False)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=False)
     school = models.ForeignKey(School, on_delete=models.PROTECT)
 
     class Meta:
-        ordering = ['user__first_name', 'user__last_name']
+        ordering = ['first_name', 'last_name']
         verbose_name = 'School Coordinator'
         verbose_name_plural = 'School Coordinators'
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.username}"
 
 
-class Teacher(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+class Teacher(User):
+    user_ptr = models.OneToOneField(User, parent_link=True, to_field='id',
+                                    on_delete=models.PROTECT, primary_key=False)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=False)
     school = models.ForeignKey(School, on_delete=models.PROTECT)
     unique_id = models.CharField(max_length=50)
-    # classVal = models.ManyToManyField
 
     class Meta:
-        ordering = ['user__first_name', 'user__last_name']
+        ordering = ['first_name', 'last_name']
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.username}"
 
 
-class Parent(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+class Parent(User):
+    user_ptr = models.OneToOneField(User, parent_link=True, to_field='id',
+                                    on_delete=models.PROTECT, primary_key=False)
 
     class Meta:
-        ordering = ['user__first_name', 'user__last_name']
+        ordering = ['first_name', 'last_name']
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.username}"
 
 
-class Student(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+class Student(User):
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=False)
     school = models.ForeignKey(School, on_delete=models.PROTECT)
     unique_id = models.CharField(max_length=50)  # Enrolment ID / Any other unique ID
     preferred_lang = models.ForeignKey(Language, on_delete=models.PROTECT)
     current_class = models.IntegerField(choices=CLASS_CHOICES)
     division = models.CharField(max_length=50)
-    teacher = models.ForeignKey(Teacher, on_delete=models.PROTECT)
-    parent = models.ForeignKey(Parent, on_delete=models.PROTECT)
+    _teacher = models.ForeignKey(Teacher, on_delete=models.PROTECT, related_name='students')
+    _parent = models.ForeignKey(Parent, on_delete=models.PROTECT, related_name='children')
 
     class Meta:
-        ordering = ['user__first_name', 'user__last_name']
+        ordering = ['first_name', 'last_name']
 
     def __str__(self):
-        return f"{self.user.username} - {self.school.name_of_association}"
+        return f"{self.username} - {self.school.name_of_association}"
 
 
 class ClassCoordinator(models.Model):
@@ -213,7 +220,7 @@ class ClassCoordinator(models.Model):
     classVal = models.IntegerField(choices=CLASS_CHOICES)
 
     class Meta:
-        ordering = ['teacher__user__first_name', 'teacher__user__last_name']
+        ordering = ['teacher__first_name', 'teacher__last_name']
 
     def __str__(self):
-        return f"{self.teacher.user.username} - {self.classVal}"
+        return f"{self.teacher.username} - {self.classVal}"
