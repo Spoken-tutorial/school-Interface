@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from common.models import State, District, City, Language
 
-MAX_CLASS = 10
+MAX_CLASS = 12
 CLASS_CHOICES = [(i, f"Class {i}") for i in range(1, MAX_CLASS+1)]
 
 
@@ -129,8 +129,6 @@ class Payment(models.Model):
 
 
 class TrainingTeam(User):
-    user_ptr = models.OneToOneField(User, parent_link=True, to_field='id',
-                                    on_delete=models.PROTECT, primary_key=False)
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=False)
 
     class Meta:
@@ -143,9 +141,6 @@ class TrainingTeam(User):
 
 
 class CentralCoordinator(User):
-    user_ptr = models.OneToOneField(User, parent_link=True,
-                                    to_field='id', on_delete=models.PROTECT,
-                                    primary_key=False)
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=False)
     organisation = models.ForeignKey(Organisation, on_delete=models.PROTECT)
 
@@ -159,8 +154,6 @@ class CentralCoordinator(User):
 
 
 class SchoolCoordinator(User):
-    user_ptr = models.OneToOneField(User, parent_link=True, to_field='id',
-                                    on_delete=models.PROTECT, primary_key=False)
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=False)
     school = models.ForeignKey(School, on_delete=models.PROTECT)
 
@@ -174,8 +167,6 @@ class SchoolCoordinator(User):
 
 
 class Teacher(User):
-    user_ptr = models.OneToOneField(User, parent_link=True, to_field='id',
-                                    on_delete=models.PROTECT, primary_key=False)
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=False)
     school = models.ForeignKey(School, on_delete=models.PROTECT)
     unique_id = models.CharField(max_length=50)
@@ -188,8 +179,6 @@ class Teacher(User):
 
 
 class Parent(User):
-    user_ptr = models.OneToOneField(User, parent_link=True, to_field='id',
-                                    on_delete=models.PROTECT, primary_key=False)
 
     class Meta:
         ordering = ['first_name', 'last_name']

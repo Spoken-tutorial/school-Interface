@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('common', '0001_initial'),
         ('auth', '0012_alter_user_first_name_max_length'),
+        ('common', '0001_initial'),
     ]
 
     operations = [
@@ -27,12 +27,13 @@ class Migration(migrations.Migration):
                 ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
                 ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
                 ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
-                ('first_name', models.CharField(blank=True, max_length=150, verbose_name='first name')),
-                ('last_name', models.CharField(blank=True, max_length=150, verbose_name='last name')),
                 ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
                 ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
                 ('email', models.EmailField(blank=True, max_length=254, null=True, unique=True)),
+                ('first_name', models.CharField(max_length=150, verbose_name='first name')),
+                ('last_name', models.CharField(max_length=150, verbose_name='last name')),
+                ('phone', models.CharField(max_length=20, validators=[django.core.validators.RegexValidator(message='Enter a valid phone/mobile number', regex='^\\+?[0-9]+-?[0-9]{6,}$')])),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
             ],
@@ -46,19 +47,28 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
+            name='Location',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('address', models.TextField()),
+                ('pincode', models.CharField(max_length=6)),
+                ('updated', models.DateField(auto_now=True)),
+                ('city', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.city')),
+                ('district', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.district')),
+                ('state', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.state')),
+            ],
+        ),
+        migrations.CreateModel(
             name='Organisation',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name_of_association', models.CharField(max_length=200)),
+                ('name_of_association', models.CharField(max_length=200, unique=True)),
                 ('date_of_association', models.DateField()),
                 ('type', models.CharField(choices=[('Central Government', 'Central Government'), ('State Government', 'State Government'), ('Public Company', 'Public Company'), ('Private Company', 'Private Company'), ('NGO', 'NGO'), ('Foreign', 'Foreign')], max_length=100)),
                 ('updated', models.DateField(auto_now=True)),
                 ('is_active', models.BooleanField(default=True)),
-                ('pincode', models.CharField(max_length=6)),
-                ('added_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
-                ('city', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.city')),
-                ('district', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.district')),
-                ('state', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.state')),
+                ('added_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='associated_organisation', to=settings.AUTH_USER_MODEL)),
+                ('location', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.location')),
             ],
             options={
                 'ordering': ['name_of_association', '-date_of_association'],
@@ -67,85 +77,31 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Parent',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
+                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'ordering': ['user__first_name', 'user__last_name'],
+                'ordering': ['first_name', 'last_name'],
             },
+            bases=('accounts.user',),
+            managers=[
+                ('objects', django.contrib.auth.models.UserManager()),
+            ],
         ),
         migrations.CreateModel(
             name='School',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name_of_association', models.CharField(max_length=200)),
+                ('name_of_association', models.CharField(max_length=200, unique=True)),
                 ('date_of_association', models.DateField()),
                 ('type', models.CharField(choices=[('Central Government Funded', 'Central Government Funded'), ('State Government Funded', 'State Government Funded'), ('Public Company Funded', 'Public Company Funded'), ('Private Company Funded', 'Private Company Funded'), ('NGO Funded', 'NGO Funded'), ('Foreign Funded', 'Foreign Funded'), ('Self-Funded', 'Self-Funded')], max_length=100)),
                 ('updated', models.DateField(auto_now=True)),
                 ('is_active', models.BooleanField(default=True)),
-                ('pincode', models.CharField(max_length=6)),
-                ('added_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
-                ('city', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.city')),
-                ('district', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.district')),
+                ('added_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='school_added', to=settings.AUTH_USER_MODEL)),
+                ('location', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.location')),
                 ('organisation', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='accounts.organisation')),
-                ('state', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.state')),
             ],
             options={
                 'ordering': ['name_of_association', '-date_of_association'],
-            },
-        ),
-        migrations.CreateModel(
-            name='TrainingTeam',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'verbose_name': 'Training Team',
-                'verbose_name_plural': 'Training Team',
-                'ordering': ['user__first_name', 'user__last_name'],
-            },
-        ),
-        migrations.CreateModel(
-            name='Teacher',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('unique_id', models.CharField(max_length=50)),
-                ('school', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.school')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'ordering': ['user__first_name', 'user__last_name'],
-            },
-        ),
-        migrations.CreateModel(
-            name='Student',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('unique_id', models.CharField(max_length=50)),
-                ('current_class', models.IntegerField(choices=[(1, 'Class 1'), (2, 'Class 2'), (3, 'Class 3'), (4, 'Class 4'), (5, 'Class 5'), (6, 'Class 6'), (7, 'Class 7'), (8, 'Class 8'), (9, 'Class 9'), (10, 'Class 10')])),
-                ('division', models.CharField(max_length=50)),
-                ('parent', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.parent')),
-                ('preferred_lang', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.language')),
-                ('school', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.school')),
-                ('teacher', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.teacher')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'ordering': ['user__first_name', 'user__last_name'],
-            },
-        ),
-        migrations.CreateModel(
-            name='SchoolCoordinator',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('school', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.school')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'verbose_name': 'School Coordinator',
-                'verbose_name_plural': 'School Coordinators',
-                'ordering': ['user__first_name', 'user__last_name'],
             },
         ),
         migrations.CreateModel(
@@ -154,13 +110,9 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('dob', models.DateField(help_text='YYYY-MM-DD')),
                 ('gender', models.CharField(choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other'), ('NA', 'Not applicable')], max_length=2)),
-                ('phone', models.CharField(max_length=20, validators=[django.core.validators.RegexValidator(message='Enter a valid phone/mobile number', regex='^\\+?[0-9]+-?[0-9]+$')])),
-                ('pincode', models.CharField(max_length=6)),
                 ('updated', models.DateField(auto_now=True)),
-                ('city', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.city')),
-                ('district', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.district')),
-                ('state', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.state')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
+                ('location', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.location')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='profile_info', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -182,6 +134,76 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='TrainingTeam',
+            fields=[
+                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('profile', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='accounts.profile')),
+            ],
+            options={
+                'verbose_name': 'Training Team',
+                'verbose_name_plural': 'Training Team',
+                'ordering': ['first_name', 'last_name'],
+            },
+            bases=('accounts.user',),
+            managers=[
+                ('objects', django.contrib.auth.models.UserManager()),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Teacher',
+            fields=[
+                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('unique_id', models.CharField(max_length=50)),
+                ('profile', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='accounts.profile')),
+                ('school', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.school')),
+            ],
+            options={
+                'ordering': ['first_name', 'last_name'],
+            },
+            bases=('accounts.user',),
+            managers=[
+                ('objects', django.contrib.auth.models.UserManager()),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Student',
+            fields=[
+                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('unique_id', models.CharField(max_length=50)),
+                ('current_class', models.IntegerField(choices=[(1, 'Class 1'), (2, 'Class 2'), (3, 'Class 3'), (4, 'Class 4'), (5, 'Class 5'), (6, 'Class 6'), (7, 'Class 7'), (8, 'Class 8'), (9, 'Class 9'), (10, 'Class 10')])),
+                ('division', models.CharField(max_length=50)),
+                ('_parent', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='children', to='accounts.parent')),
+                ('_teacher', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='students', to='accounts.teacher')),
+                ('preferred_lang', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='common.language')),
+                ('profile', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='accounts.profile')),
+                ('school', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.school')),
+            ],
+            options={
+                'ordering': ['first_name', 'last_name'],
+            },
+            bases=('accounts.user',),
+            managers=[
+                ('objects', django.contrib.auth.models.UserManager()),
+            ],
+        ),
+        migrations.CreateModel(
+            name='SchoolCoordinator',
+            fields=[
+                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('profile', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='accounts.profile')),
+                ('school', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.school')),
+            ],
+            options={
+                'verbose_name': 'School Coordinator',
+                'verbose_name_plural': 'School Coordinators',
+                'ordering': ['first_name', 'last_name'],
+            },
+            bases=('accounts.user',),
+            managers=[
+                ('objects', django.contrib.auth.models.UserManager()),
+            ],
+        ),
+        migrations.CreateModel(
             name='ClassCoordinator',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -189,20 +211,24 @@ class Migration(migrations.Migration):
                 ('teacher', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.teacher')),
             ],
             options={
-                'ordering': ['teacher__user__first_name', 'teacher__user__last_name'],
+                'ordering': ['teacher__first_name', 'teacher__last_name'],
             },
         ),
         migrations.CreateModel(
             name='CentralCoordinator',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
                 ('organisation', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounts.organisation')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
+                ('profile', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='accounts.profile')),
             ],
             options={
                 'verbose_name': 'Central Coordinator',
                 'verbose_name_plural': 'Central Coordinators',
-                'ordering': ['user__first_name', 'user__last_name'],
+                'ordering': ['first_name', 'last_name'],
             },
+            bases=('accounts.user',),
+            managers=[
+                ('objects', django.contrib.auth.models.UserManager()),
+            ],
         ),
     ]
