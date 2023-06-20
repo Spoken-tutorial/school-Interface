@@ -11,26 +11,29 @@ CLASS_CHOICES = [(i, f"Class {i}") for i in range(1, MAX_CLASS+1)]
 
 
 class User(AbstractUser):
-    phone_regex = RegexValidator(regex=r'^\+?[0-9]+-?[0-9]{6,}$',
+    phone_regex = RegexValidator(regex=r'^(\+[1-9][0-9]*-)?[1-9][0-9]{6,}$',
                                  message='Enter a valid phone/mobile number')
 
-    email = models.EmailField(unique=True, blank=True, null=True)
+    email = models.EmailField(unique=True, null=True)
     first_name = models.CharField(_("first name"), max_length=150, blank=False,
                                   null=False)
     last_name = models.CharField(_("last name"), max_length=150, blank=False,
                                  null=False)
-    phone = models.CharField(max_length=20, validators=[phone_regex])
+    phone = models.CharField(max_length=20, null=True, validators=[phone_regex])
 
 
 class Location(models.Model):
     """
         Complete address for users
     """
+    pincode_regex = RegexValidator(regex=r'^\d{6}$',
+                                   message='Enter a valid pincode')
+
     address = models.TextField()
     state = models.ForeignKey(State, on_delete=models.PROTECT)
     district = models.ForeignKey(District, on_delete=models.PROTECT)
     city = models.ForeignKey(City, on_delete=models.PROTECT)
-    pincode = models.CharField(max_length=6)
+    pincode = models.CharField(max_length=6, validators=[pincode_regex])
     updated = models.DateField(auto_now=True)
 
     def __str__(self) -> str:
@@ -42,8 +45,6 @@ class Profile(models.Model):
     """
         Profile information for users
     """
-    pincode_regex = RegexValidator(regex=r'^\d{6}$',
-                                   message='Enter a valid pincode')
     GENDER_CHOICES = [('M', 'Male'), ('F', 'Female'), ('O', 'Other'),
                       ('NA', 'Not applicable')]  # 'NA' in case of organisation & school
 
