@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from common.models import State, District, City, Language
 
-MAX_CLASS = 10
+MAX_CLASS = 12
 CLASS_CHOICES = [(i, f"Class {i}") for i in range(1, MAX_CLASS+1)]
 
 
