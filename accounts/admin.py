@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 from .models import User, Organisation, School, Payment, TrainingTeam, \
-        CentralCoordinator, SchoolCoordinator, Teacher, Parent, Profile, Location
+        CentralCoordinator, SchoolCoordinator, Teacher, Parent, Profile, \
+        Location, Role, Condition, MessageType, Message
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -88,3 +89,7 @@ admin.site.register(Teacher, TeacherAdmin)
 admin.site.register(Parent, ParentAdmin)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Location, LocationAdmin)
+admin.site.register(Message)
+admin.site.register(MessageType)
+admin.site.register(Role)
+admin.site.register(Condition)

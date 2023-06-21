@@ -213,3 +213,42 @@ class ClassCoordinator(models.Model):
 
     def __str__(self):
         return f"{self.teacher.username} - {self.classVal}"
+
+
+class Role(models.Model):
+    role = models.CharField(unique=True, max_length=20, null=False)
+
+
+class Condition(models.Model):
+    sender = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='sender')
+    receiver = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='receiver')
+    single_msg = models.BooleanField(default=False)
+    bulk_msg = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ['sender', 'receiver']
+
+
+class MessageType(models.Model):
+    messagetype = models.CharField(unique=True, max_length=20, null=False)
+
+
+class Message(models.Model):
+    message = models.CharField(max_length=500, null=False)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    sender_role = models.ForeignKey(
+        Role, on_delete=models.CASCADE,
+        related_name='sender_role'
+    )
+    receiver = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='received_messages'
+    )
+    receiver_role = models.ForeignKey(
+        Role, on_delete=models.CASCADE,
+        related_name='receiver_role'
+    )
+    message_type = models.ForeignKey(
+        MessageType, on_delete=models.CASCADE,
+        related_name='message_type'
+    )
