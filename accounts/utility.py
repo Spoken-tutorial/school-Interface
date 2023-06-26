@@ -41,3 +41,13 @@ class CustomPasswordValidator(UserAttributeSimilarityValidator):
     def validate(self, password, user=None, dob=None):
         super().validate(password, user)
         validate_user_password_constraints(password, dob)
+
+
+class InputValue():
+    def get(self):
+        msg_recv = ["barath"]
+        message = "Hello"
+        msg_type = "single"
+        rec_role = "parent"
+
+        return msg_recv, rec_role, message, msg_type
