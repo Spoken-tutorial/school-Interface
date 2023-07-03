@@ -1,37 +1,32 @@
 # from django.urls import reverse
 from rest_framework.test import APITestCase
+from rest_framework import status
 from common.models import State, District, City
 from django.contrib.auth.models import Group
-from rest_framework import status
+from django.urls import reverse
+from common.models import State,District,City
+from django.test import TestCase
+
+from rest_framework.test import APIClient
 from datetime import date
-from accounts.models import User, Message, MessageType, \
-    Condition, Teacher, Profile, Location, School, Parent
+from accounts.models import User, Message, MessageType, Condition, Teacher, Profile, Location, School, Parent, Location
 
-
-class AccountsTest(APITestCase):
+ class AccountsTest(APITestCase):
     def setUp(self):
         s = State.objects.create(id=1, name='Maharashtra')
         District.objects.create(id=1, name='Mumbai', state=s)
         City.objects.create(id=1, name='Mumbai', state=s)
-        User.objects.create(
-            username='user2',
-            email='parent1@example.com',
-            password='password1',
-            first_name='Johne',
-            last_name='Doev',
-            phone='+1234567892'
-        )
+        User.objects.create(id=1, username="ankitamk", email="ankitamk@gmail.com",
+                                 password="Root@123")
         self.post_data = {
             "user": {
-                "username": "user3",
-                "email": "user3@example.com",
-                "password": "password1",
-                "first_name": "Johne",
-                "last_name": "Doev",
-                "phone": "+1234567892"
+                "first_name": "Aditi",
+                "last_name": "P",
+                "email": "aditip3@gmail.com",
+                "username": "aditip3@gmail.com",
+                "password": "Admin@1234"
             },
             "profile": {
-                "user": "user",
                 "dob": "1991-06-05",
                 "gender": "F",
                 "phone": "9810150191",
@@ -65,33 +60,29 @@ class AccountsTest(APITestCase):
 
     def test_create_user(self):
         """
-        Ensure we can create a new Training Team user.
-        """
+        #Ensure we can create a new Training Team user.
+"""
         response = self.client.post(self.create_user_url, self.post_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_organisation(self):
         """
-        Ensure we can create a new Organisation.
-        """
+        #Ensure we can create a new Organisation.
+"""
         response = self.client.post(self.create_org_url, self.org_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-
-class MessageWithinCommunity1(APITestCase):
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED) 
+        
+ class MessageWithinCommunity1(APITestCase):
 
     def setUp(self):
         sender_group = Group.objects.create(name='teacher')
-
-        receiver_group = Group.objects.create(name='parent')
-
+        receiver_group = Group.objects.create(name='parent')      
         state_ = State.objects.create(id=1, name='Maharashtra')
-
         district = District.objects.create(id=1, name='Mumbai', state=state_)
         city = City.objects.create(id=1, name='Mumbai', state=state_)
 
         # Create a Location instance
-        locat = Location.objects.create(
+        l = Location.objects.create(
             address='lorem ipsum',
             state=state_,
             district=district,
@@ -101,70 +92,53 @@ class MessageWithinCommunity1(APITestCase):
 
         # Create a User instance
         teacher_user = User.objects.create(
-            username='user1',
+            username='athmikha',
             email='teacher1@example.com',
             password='password',
             first_name='John',
             last_name='Doe',
             phone='+1234567890'
         )
-
-        # Create a Profile instance
+       
+        # Create a Profile instance and associate it with the User and Location instances
         teacher_profile = Profile.objects.create(
             user=teacher_user,
             dob='1991-06-05',
             gender='F',
-            location=locat
+            location=l
         )
-
-        # Create a School instance
+    
         school = School.objects.create(
             added_by=teacher_user,
             name_of_association='kendriya vidyalaya 10',
             date_of_association=date(2023, 6, 27),
             type='Central Government Funded',
-            organisation=None,
-            location=locat,
+            organisation=None,  # If applicable, replace with the appropriate Organisation instance
+            location=l,
         )
-
-        # Create a Teacher instance
-        sender = Teacher(
-            user_ptr=teacher_user,
-            school=school,
-            profile=teacher_profile,
-            unique_id='12345'
-        )
+        
+        sender = Teacher(user_ptr=teacher_user,school=school,profile=teacher_profile,unique_id='12345')
         sender.save_base(raw=True)
-
-        # Create a User instance
+        q=Teacher.objects.all()
+        
         parent_user = User.objects.create(
-            username='user2',
+            username='janthuu',
             email='parent1@example.com',
             password='password1',
             first_name='Johne',
             last_name='Doev',
             phone='+1234567892'
         )
-
+       
         # Create a Parent instance and associate it with the User instance
         receiver = Parent(
             user_ptr=parent_user
         )
         receiver.save_base(raw=True)
-
-        # Create a Message Type instance
         message_type = MessageType.objects.create(messagetype='Single Message')
         message_type = MessageType.objects.create(messagetype='Bulk Message')
-
-        # Create a Condition instance
-        Condition.objects.create(
-            sender=sender_group,
-            receiver=receiver_group,
-            single_msg=1,
-            bulk_msg=1
-        )
-
-        # Create a Message instance
+        
+        Condition.objects.create(sender=sender_group, receiver=receiver_group,single_msg=1,bulk_msg=1)
         Message.objects.create(
             message='Test message',
             sender=sender,
@@ -178,15 +152,40 @@ class MessageWithinCommunity1(APITestCase):
     def test_get_with_valid_data(self):
         # Test the 'get' method with valid data
         request_data = {
+            
+           "sender_role" : "teacher",
+           "sender" : "athmikha",
+           "msg_recv" : ["janthuu"],
+           "message" : "Hello janthuuu ",
+           "msg_type" : "Single Message",
+           "rec_role" : "parent"
 
-           "sender_role": "teacher",
-           "sender": "user1",
-           "msg_recv": ["user2"],
-           "message": "Hello user2 ",
-           "msg_type": "Single Message",
-           "rec_role": "parent"
-
-        }
+        } 
+        
         self.url = 'http://127.0.0.1:8000/accounts/message-list'
         response = self.client.post(self.url, data=request_data, format='json', follow=True)
         self.assertEqual(response.status_code, 200)
+
+
+class LocationMatchTestCase(TestCase):
+    def setUp(self):
+        state_ = State.objects.create(id=1, name='Maharashtra')
+        state1_ = State.objects.create(id=2, name='tamil nadu')
+        district = District.objects.create(id=1, name='Mumbai', state=state_)
+        city = City.objects.create(id=1, name='Mumbai', state=state_)
+        self.location1 = Location.objects.create(address='Address 1', state=state_, district=district, city=city, pincode='123456')
+        self.location2 = Location.objects.create(address='Address 2', state=state1_, district=district, city=city, pincode='654321')
+        self.user1 = User.objects.create(username='user1', first_name='Johne', last_name='Doev', email='user1@example.com', phone='1234567890',location_id=self.location1.id)
+        self.user2 = User.objects.create(username='athmikha', first_name='athmikha',last_name='cds', email='ath2@example.com', phone='9876543210',location_id=self.location2.id)
+       
+      
+
+    def test_match_location_view(self):
+        request_data = {
+            "user1": self.user1.id,
+            "user2": self.user2.id
+        }
+        url = 'http://127.0.0.1:8000/accounts/match/' 
+        response = self.client.post(url, data=request_data, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'matched')
