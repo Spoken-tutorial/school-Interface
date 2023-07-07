@@ -33,30 +33,26 @@ class MessageWithinCommunity(APIView):
         msgtype = request.data.get('msg_type')
         recvRole = request.data.get('rec_role')
         x = User.objects.get(username=senderName)
-
         if hasattr(x, senderRole):
             s = Group.objects.get(name=senderRole)
             r = Group.objects.get(name=recvRole)
             m = MessageType.objects.get(messagetype=msgtype)
-
             matching_rows = Condition.objects.get(sender=s, receiver=r)
-            if msgtype == 'Single Message' and matching_rows.single_msg:
+        elif msgtype == 'Bulk Message' and matching_rows.bulk_msg:
                 pass
-            elif msgtype == 'Bulk Message' and matching_rows.bulk_msg:
-                pass
-            else:
+        else:
                 print("not a valid combination")
 
-            for i in range(0, len(recvName)):
-                ide = User.objects.get(username=recvName[i])
-                if hasattr(ide, recvRole):
-                    message = Message(
-                        receiver=ide, sender=x, sender_role=s,
-                        receiver_role=r, message=message_, message_type=m
-                    )
-                    message.save()
-                else:
-                    print('not the role')
+        for i in range(0, len(recvName)):
+            ide = User.objects.get(username=recvName[i])
+            if hasattr(ide, recvRole):
+                message = Message(
+                    receiver=ide, sender=x, sender_role=s,
+                    receiver_role=r, message=message_, message_type=m
+                )
+                message.save()
+            else:
+                print('not the role')
         else:
             print('Not a valid sender!!')
         response = HttpResponse("Message Part")

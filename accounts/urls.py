@@ -4,7 +4,7 @@ from accounts.api.institution_api import OrganisationViewset, SchoolViewset
 from accounts.api.user_api import CentralCoordinatorViewset, SchoolCoordinatorViewset, \
      TeacherViewset, ParentViewset
 from rest_framework import routers
-from .views import LogoutView, MessageWithinCommunity
+from .views import LogoutView, MessageWithinCommunity, Match
 app_name = "accounts"
 
 router = routers.DefaultRouter(trailing_slash=False)
@@ -24,4 +24,6 @@ urlpatterns = [
      path('', include(router.urls)),
      path('logout/', LogoutView.as_view(), name='logout'),
      path('message-list', MessageWithinCommunity.as_view(), name='message-list'),
+     
+
 ]
