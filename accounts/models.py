@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import Group
 
 from common.models import State, District, City, Language
 
@@ -215,13 +216,9 @@ class ClassCoordinator(models.Model):
         return f"{self.teacher.username} - {self.classVal}"
 
 
-class Role(models.Model):
-    role = models.CharField(unique=True, max_length=20, null=False)
-
-
 class Condition(models.Model):
-    sender = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='sender')
-    receiver = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='receiver')
+    sender = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='sender')
+    receiver = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='receiver')
     single_msg = models.BooleanField(default=False)
     bulk_msg = models.BooleanField(default=False)
 
@@ -230,14 +227,18 @@ class Condition(models.Model):
 
 
 class MessageType(models.Model):
-    messagetype = models.CharField(unique=True, max_length=20, null=False)
+    TYPE_CHOICES = [
+        ('Single Message', 'Single Message'),
+        ('Bulk Message', 'Bulk Message'),
+    ]
+    messagetype = models.CharField(max_length=100, choices=TYPE_CHOICES)
 
 
 class Message(models.Model):
     message = models.CharField(max_length=500, null=False)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     sender_role = models.ForeignKey(
-        Role, on_delete=models.CASCADE,
+        Group, on_delete=models.CASCADE,
         related_name='sender_role'
     )
     receiver = models.ForeignKey(
@@ -245,7 +246,7 @@ class Message(models.Model):
         related_name='received_messages'
     )
     receiver_role = models.ForeignKey(
-        Role, on_delete=models.CASCADE,
+        Group, on_delete=models.CASCADE,
         related_name='receiver_role'
     )
     message_type = models.ForeignKey(

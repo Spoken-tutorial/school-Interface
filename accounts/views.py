@@ -5,7 +5,8 @@ from django.http import HttpResponse
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework import status
-from accounts.models import User, Role, Condition, MessageType, Message
+from accounts.models import User, Condition, MessageType, Message
+from django.contrib.auth.models import Group
 
 
 class LogoutView(APIView):
@@ -21,44 +22,27 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class InputValue(APIView):
-    def get(self, request, sender, username):
-        msg_recv = []
-        n = int(input("Enter Number of Receiver: "))
-        for i in range(0, n):
-            print("User", i+1, ": ")
-            val = input()
-            try:
-                User.objects.get(username=val)
-                msg_recv.append(val)
-            except User.DoesNotExist:
-                print("Not a Valid Receiver!!")
-
-        message_ = input("Enter the message: ")
-        msg_type = input("Enter the message type 'single' or 'bulk' : ")
-        rec_role = input("Enter the Receiver role: ")
-
-        response = MessageWithinCommunity.get(
-            request, username, sender, msg_recv,
-            rec_role, message_, msg_type
-        )
-
-        return response
-
-
 class MessageWithinCommunity(APIView):
 
-    def get(request, sendername, senderRole, recvName, recvRole, message_, msgtype):
-        x = User.objects.get(username=sendername)
+    def post(self, request):
+
+        senderRole = request.data.get('sender_role')
+        senderName = request.data.get('sender')
+        recvName = request.data.get('msg_recv', [])
+        message_ = request.data.get('message')
+        msgtype = request.data.get('msg_type')
+        recvRole = request.data.get('rec_role')
+        x = User.objects.get(username=senderName)
+
         if hasattr(x, senderRole):
-            s = Role.objects.get(role=senderRole)
-            r = Role.objects.get(role=recvRole)
+            s = Group.objects.get(name=senderRole)
+            r = Group.objects.get(name=recvRole)
             m = MessageType.objects.get(messagetype=msgtype)
 
             matching_rows = Condition.objects.get(sender=s, receiver=r)
-            if msgtype == 'single' and matching_rows.single_msg:
+            if msgtype == 'Single Message' and matching_rows.single_msg:
                 pass
-            elif msgtype == 'bulk' and matching_rows.bulk_msg:
+            elif msgtype == 'Bulk Message' and matching_rows.bulk_msg:
                 pass
             else:
                 print("not a valid combination")

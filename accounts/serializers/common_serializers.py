@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from common.serializers import LocationSerializer
 from accounts.utility import CustomPasswordValidator
-from accounts.models import User, Profile, Message, Role, Condition, MessageType
+from accounts.models import User, Profile, Message, Condition, MessageType
 from accounts.helper import save_location_data
 
 
@@ -61,12 +61,6 @@ class MessageSerializer(serializers.ModelSerializer):
 class MessageTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = MessageType
-        fields = '__all__'
-
-
-class RoleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Role
         fields = '__all__'
 
 
