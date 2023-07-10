@@ -64,16 +64,16 @@ class AccountsTest(APITestCase):
         self.create_org_url = 'http://127.0.0.1:8000/accounts/register/organisations'
 
     def test_create_user(self):
-
-        # Ensure we can create a new Training Team user.
-
+        """
+        Ensure we can create a new Training Team user.
+        """
         response = self.client.post(self.create_user_url, self.post_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_organisation(self):
-
-        # Ensure we can create a new Organisation.
-
+        """
+        Ensure we can create a new Organisation.
+        """
         response = self.client.post(self.create_org_url, self.org_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 

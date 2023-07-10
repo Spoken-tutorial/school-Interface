@@ -1,2 +1,3 @@
 [flake8]
+extend-exclude = docs,env*,migrations
 max-line-length = 92
