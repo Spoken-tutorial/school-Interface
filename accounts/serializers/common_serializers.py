@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from common.serializers import LocationSerializer
 from accounts.utility import CustomPasswordValidator
-from accounts.models import User, Profile
+from accounts.models import User, Profile, Message, Condition, MessageType
 from accounts.helper import save_location_data
 
 
@@ -50,3 +50,21 @@ class ProfileSerializer(serializers.ModelSerializer):
         if location_data:
             save_location_data(location_data, instance.location)
         return super().update(instance, validated_data)
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = '__all__'
+
+
+class MessageTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MessageType
+        fields = '__all__'
+
+
+class ConditionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Condition
+        fields = '__all__'

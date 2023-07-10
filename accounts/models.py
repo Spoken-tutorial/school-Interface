@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import Group
 
 from common.models import State, District, City, Language
 
@@ -213,3 +214,42 @@ class ClassCoordinator(models.Model):
 
     def __str__(self):
         return f"{self.teacher.username} - {self.classVal}"
+
+
+class Condition(models.Model):
+    sender = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='sender')
+    receiver = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='receiver')
+    single_msg = models.BooleanField(default=False)
+    bulk_msg = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ['sender', 'receiver']
+
+
+class MessageType(models.Model):
+    TYPE_CHOICES = [
+        ('Single Message', 'Single Message'),
+        ('Bulk Message', 'Bulk Message'),
+    ]
+    messagetype = models.CharField(max_length=100, choices=TYPE_CHOICES)
+
+
+class Message(models.Model):
+    message = models.CharField(max_length=500, null=False)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    sender_role = models.ForeignKey(
+        Group, on_delete=models.CASCADE,
+        related_name='sender_role'
+    )
+    receiver = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='received_messages'
+    )
+    receiver_role = models.ForeignKey(
+        Group, on_delete=models.CASCADE,
+        related_name='receiver_role'
+    )
+    message_type = models.ForeignKey(
+        MessageType, on_delete=models.CASCADE,
+        related_name='message_type'
+    )

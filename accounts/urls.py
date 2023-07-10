@@ -5,6 +5,7 @@ from accounts.api.user_api import CentralCoordinatorViewset, SchoolCoordinatorVi
      TeacherViewset, ParentViewset
 from rest_framework import routers
 from .views import LogoutView
+from . import views
 app_name = "accounts"
 
 router = routers.DefaultRouter(trailing_slash=False)
@@ -22,5 +23,6 @@ router.register(r'register/parents', ParentViewset, basename='parent-register')
 
 urlpatterns = [
      path('', include(router.urls)),
-     path('logout/', LogoutView.as_view(), name='logout')
+     path('logout/', LogoutView.as_view(), name='logout'),
+     path('message-list', views.MessageWithinCommunity.as_view(), name='message-list'),
 ]
