@@ -1,5 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from common.serializers import LocationSerializer
+from .models import GroupPermission
 
 
 def set_encrypted_password(password):
@@ -98,3 +99,60 @@ def save_location_data(location_data, obj=None):
         ValidationError: If the location data is invalid.
     """
     return save_data(LocationSerializer, location_data, obj)
+
+
+def manage_group_permissions(group, permissions):
+    """
+    Manages group permissions for a given group by processing a dictionary of permissions.
+
+    Args:
+        group (Group): The group for which permissions are managed.
+        permissions (dict): A dictionary containing permission data.
+
+    The `permissions` dictionary should have the following structure:
+    {
+        "permission_id_1": {
+            "status": True or False,  # Indicates whether the permission
+            is granted or revoked.
+            "context": context_id or None  # context associated with the permission.
+        },
+        # Additional permission entries...
+    }
+
+    For each permission in the dictionary, this function either grants or revokes
+    the permission for the group.
+    If "status" is True, the permission is granted. If "status" is False,
+    the permission is revoked.
+    The "context" field can specify additional context for the permission.
+
+    Returns:
+        None
+
+    This function performs the necessary operations on the `GroupPermission` model
+    based on the provided data.
+    It creates new permissions or deletes existing ones according to the specified status.
+    Any exceptions that occur during this process are printed to the console
+    for debugging purposes.
+    """
+    for permission, permission_data in permissions.items():
+        permission_id = int(permission)
+        context_id = permission_data.get('context', None)
+        status = permission_data.get('status', False)
+        try:
+            if status:
+                gp = GroupPermission.objects.filter(role=group, permission_id=permission_id
+                                                    ).first()
+                if gp:
+                    gp.context_id = context_id
+                    gp.save()
+                else:
+                    GroupPermission.objects.create(role=group,
+                                                   permission_id=permission_id,
+                                                   context_id=context_id)
+            else:
+                gp = GroupPermission.objects.get(role=group,
+                                                 permission_id=permission_id,
+                                                 context_id=context_id)
+                gp.delete()
+        except Exception as e:
+            print(f"\033[93mException **  {e}\033[0m")
