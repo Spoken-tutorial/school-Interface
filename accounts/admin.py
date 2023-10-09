@@ -2,7 +2,8 @@ from django.contrib import admin
 
 from .models import User, Organisation, School, Payment, TrainingTeam, \
         CentralCoordinator, SchoolCoordinator, Teacher, Parent, Profile, \
-        Location, Condition, MessageType, Message
+        Location, Condition, MessageType, Message, Context, ContextAllowAssign, \
+        Permission, GroupPermission
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -92,3 +93,7 @@ admin.site.register(Location, LocationAdmin)
 admin.site.register(Message)
 admin.site.register(MessageType)
 admin.site.register(Condition)
+admin.site.register(Context)
+admin.site.register(ContextAllowAssign)
+admin.site.register(Permission)
+admin.site.register(GroupPermission)

@@ -3,8 +3,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import Group
-
 from common.models import State, District, City, Language
+from config import RESOURCES
+
 
 MAX_CLASS = 12
 CLASS_CHOICES = [(i, f"Class {i}") for i in range(1, MAX_CLASS+1)]
@@ -254,3 +255,136 @@ class Message(models.Model):
         MessageType, on_delete=models.CASCADE,
         related_name='message_type'
     )
+
+
+# Revised models
+class Context(models.Model):
+    """
+    A context defines the level at which a role operates or an action is performed
+    within the system. Example: Organization, city, class levels. It includes a name,
+    description, and an order to define its level of hierarchy.
+
+    Attributes:
+        name (str): The name of the context.
+        description (str): A detailed description of the context.
+        order (int): The level of hierarchy for the context.
+
+    Meta:
+        ordering (list): The instances are ordered by their 'order' attribute in
+        ascending order.
+
+    Methods:
+        __str__(): Returns a string representation of the context in the format
+            'order - name'.
+    """
+    name = models.CharField(max_length=100, null=False, unique=True)
+    description = models.TextField(null=False)
+    order = models.IntegerField(null=False)  # Level of hierarchy
+
+    def __str__(self):
+        return f"{self.order} - {self.name}"
+
+    class Meta:
+        ordering = ['order']
+
+
+class ContextAllowAssign(models.Model):
+    """
+    This model maintains a relationship between two Context instances,
+    indicating that one context can assign roles in another context.
+
+    Attributes:
+        assigningLevel (ForeignKey): A ForeignKey relationship to the Context
+            instance that has the permission to assign roles.
+        assignedLevel (ForeignKey): A ForeignKey relationship to the Context
+            instance where roles can be assigned.
+
+    Meta:
+        unique_together (list of str): The combination of 'assigningLevel' and
+                                        'assignedLevel' must be unique.
+        ordering (list of str): The default ordering of ContextAllowAssign
+                                instances is by the
+            'assigningLevel__order' and 'assignedLevel__order' attributes.
+        db_table (str): The name of the database table for this model.
+
+    Methods:
+        __str__(): Returns a string representation of the permission.
+    """
+    assigningLevel = models.ForeignKey(Context, on_delete=models.CASCADE,
+                                       related_name='assigningContext')
+    assignedLevel = models.ForeignKey(Context, on_delete=models.CASCADE,
+                                      related_name='assignedContext')
+
+    class Meta:
+        unique_together = ['assigningLevel', 'assignedLevel']
+        ordering = ['assigningLevel__order', 'assignedLevel__order']
+        db_table = 'accounts_context_allow_assign'
+
+    def __str__(self):
+        return f"{self.assigningLevel} can assign roles at level: {self.assignedLevel} "
+
+
+class Permission(models.Model):
+    """
+    This model represents a permission within the system, which is used to
+    control access to various resources.
+
+    Attributes:
+        name (str): The name of the permission. Example: 'Can add testimonials'.
+        resource (str): The resource to which the permission is associated.
+                        Example: 'testimonials', 'trainings'.
+        description (str): A detailed description of the permission.
+
+    Methods:
+        __str__(): Returns a string representation of the permission.
+
+    """
+    RESOURCES = RESOURCES
+    name = models.CharField(max_length=100, null=False, unique=True)
+    resource = models.CharField(max_length=100, null=False, choices=RESOURCES)
+    description = models.TextField(null=False)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class GroupPermission(models.Model):
+    """
+    This model defines that a specific role has a particular permission
+    within a specific context.
+
+    Attributes:
+        role (ForeignKey to Group): The role (group) to which the permission
+            is assigned.
+        permission (ForeignKey to Permission): The permission being assigned to
+            the role.
+        context (ForeignKey to Context): The context in which the permission is
+            granted.
+        created (DateTimeField): The timestamp when this role-permission
+            association was created.
+        updated (DateTimeField): The timestamp when this role-permission
+            association was last updated.
+
+    Meta:
+        unique_together (list of str): The combination of 'role' and
+                                        'permission' must be unique.
+        ordering (list of str): The default ordering of GroupPermission instances is
+        by the 'role__name' and 'context__order' attributes.
+
+    Methods:
+        __str__(): Returns a string representation of the role-permission relationship.
+    """
+    role = models.ForeignKey(Group, on_delete=models.CASCADE)
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
+    context = models.ForeignKey(Context, on_delete=models.CASCADE)
+    # ToDo For more granular control?
+    # attribute = models.CharField(max_length=100, null=False)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['role', 'permission']
+        ordering = ['role__name', 'context__order']
+
+    def __str__(self):
+        return f"{self.role} has permission {self.permission} at level: {self.context}"
