@@ -39,6 +39,22 @@ class Location(models.Model):
     def __str__(self) -> str:
         return (f"{self.address}, {self.city}, {self.district}, {self.state} - "
                 f"{self.pincode}")
+    
+class User(AbstractUser):
+    phone_regex = RegexValidator(regex=r'^\+?[0-9]+-?[0-9]{6,}$',
+                                 message='Enter a valid phone/mobile number')
+
+    email = models.EmailField(unique=True, blank=True, null=True)
+    first_name = models.CharField(_("first name"), max_length=150, blank=False,
+                                  null=False)
+    last_name = models.CharField(_("last name"), max_length=150, blank=False,
+                                 null=False)
+    phone = models.CharField(max_length=20, validators=[phone_regex])
+    location = models.ForeignKey(Location,on_delete=models.PROTECT)
+
+    
+
+
 
 
 class Profile(models.Model):

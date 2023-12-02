@@ -166,7 +166,6 @@ from accounts.models import User, Message, MessageType, Condition, Teacher, Prof
         response = self.client.post(self.url, data=request_data, format='json', follow=True)
         self.assertEqual(response.status_code, 200)
 
-
 class LocationMatchTestCase(TestCase):
     def setUp(self):
         state_ = State.objects.create(id=1, name='Maharashtra')

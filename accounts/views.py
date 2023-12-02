@@ -32,8 +32,6 @@ class MessageWithinCommunity(APIView):
         message_ = request.data.get('message')
         msgtype = request.data.get('msg_type')
         recvRole = request.data.get('rec_role')
-
-
         x = User.objects.get(username=senderName)
 
         if hasattr(x, senderRole):
