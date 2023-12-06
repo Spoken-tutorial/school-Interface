@@ -24,7 +24,7 @@ urlpatterns = [
      path('', include(router.urls)),
      path('logout/', LogoutView.as_view(), name='logout'),
      path('message-list', MessageWithinCommunity.as_view(), name='message-list'),
-     path('match', Match.as_view(), name='match')
+     path('match/', Match.as_view(), name='match')
      
 
 ]

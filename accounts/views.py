@@ -133,8 +133,8 @@ def Match_user(u1,u2):
 
 class Match (APIView):
     def post(self, request):
-        user1  =  request.data.get('user1')
-        user2 =  request.data.get('user2')
+        user1 = request.data.get('user1')
+        user2 = request.data.get('user2')
         try:
             u1=User.objects.get(id=user1)
             u2=User.objects.get(id=user2)
