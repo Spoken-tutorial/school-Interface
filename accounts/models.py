@@ -3,23 +3,12 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import Group
-
 from common.models import State, District, City, Language
 
 MAX_CLASS = 12
 CLASS_CHOICES = [(i, f"Class {i}") for i in range(1, MAX_CLASS+1)]
 
 
-class User(AbstractUser):
-    phone_regex = RegexValidator(regex=r'^(\+[1-9][0-9]*-)?[1-9][0-9]{6,}$',
-                                 message='Enter a valid phone/mobile number')
-
-    email = models.EmailField(unique=True, null=True)
-    first_name = models.CharField(_("first name"), max_length=150, blank=False,
-                                  null=False)
-    last_name = models.CharField(_("last name"), max_length=150, blank=False,
-                                 null=False)
-    phone = models.CharField(max_length=20, null=True, validators=[phone_regex])
 
 
 class Location(models.Model):
@@ -39,6 +28,18 @@ class Location(models.Model):
     def __str__(self) -> str:
         return (f"{self.address}, {self.city}, {self.district}, {self.state} - "
                 f"{self.pincode}")
+
+class User(AbstractUser):
+    phone_regex = RegexValidator(regex=r'^(\+[1-9][0-9]*-)?[1-9][0-9]{6,}$',
+                                 message='Enter a valid phone/mobile number')
+
+    email = models.EmailField(unique=True, null=True)
+    first_name = models.CharField(_("first name"), max_length=150, blank=False,
+                                  null=False)
+    last_name = models.CharField(_("last name"), max_length=150, blank=False,
+                                 null=False)
+    phone = models.CharField(max_length=20, null=True, validators=[phone_regex])
+    location = models.ForeignKey(Location,on_delete=models.PROTECT)
 
 
 class Profile(models.Model):

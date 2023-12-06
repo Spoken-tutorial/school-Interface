@@ -68,3 +68,4 @@ class ConditionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Condition
         fields = '__all__'
+
