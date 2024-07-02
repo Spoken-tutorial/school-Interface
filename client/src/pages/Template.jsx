@@ -60,7 +60,9 @@ function Template() {
           {showNavList ? (
             <ResponsiveList handleNavItemClick={handleNavItemClick} />
           ) : (
-            <Outlet></Outlet>
+            <>
+              <Outlet></Outlet>
+            </>
           )}
         </Box>
         <Footer />

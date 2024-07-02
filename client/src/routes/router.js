@@ -4,6 +4,7 @@ import Template from "../pages/Template";
 import Home from "../components/Homepage/Home";
 import Signup from "../components/Signup/Signup";
 import Login from "../components/Login/Login";
+import SignupApproval from "../components/SignupApproval/SignupApproval";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -36,6 +37,22 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/approve/organizations",
+        element: <SignupApproval signupRole={"Organization"} />,
+      },
+      {
+        path: "/approve/schools",
+        element: <SignupApproval signupRole={"School"} />,
+      },
+      {
+        path: "/approve/users",
+        element: <SignupApproval signupRole={"User"} />,
+      },
+      {
+        path: "/approve/training-teams",
+        element: <SignupApproval signupRole={"Training Team"} />,
       },
     ],
   },
