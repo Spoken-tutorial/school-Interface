@@ -6,3 +6,7 @@
 .swiper-pagination-bullet-active {
   background-color: #f89021 !important;
 }
+
+.MuiToolbar-root {
+  min-height: 3rem !important;
+}

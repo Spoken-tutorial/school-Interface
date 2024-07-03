@@ -14,7 +14,7 @@ import "swiper/css/pagination";
 function Announcements() {
   return (
     <>
-      <Box sx={{ mt: { xs: "-2.7rem", md: "-2rem" } }}>
+      <Box sx={{ mt: { xs: "-2.8rem", md: "-2.8rem" } }}>
         <Swiper
           effect={"creative"}
           speed={1250}
